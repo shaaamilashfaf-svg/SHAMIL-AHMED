@@ -11,7 +11,7 @@ A fullscreen cinematic personal portfolio inspired by the award-winning stage ar
 
 - **Fullscreen Dual-Buffer Stage (`100dvh`)**: Seamless clip-path wipe transitions with animated luminous edge and film grain treatment.
 - **Rotating Hero Word Window (`#intro`)**: High-impact Anton typography cycling through *"Empathy."*, *"Aesthetics."*, *"Impact."*.
-- **The `#mensch` Section ("Der Mensch dahinter")**: A personal narrative exploring the synergy between a **BA in English Literature** (University of Calicut), **Islamic Fundamentals** (Al Jamia Al Islamiya), and digital empathy in product design.
+- **The `#mensch` Section ("The Person Behind")**: A personal narrative exploring the synergy between a **BA in English Literature** (University of Calicut), **Islamic Fundamentals** (Al Jamia Al Islamiya), and digital empathy in product design.
 - **Mobile-First & Touch Optimized**: Native app-style slide-over navigation drawer, swipe gestures, and dynamic vertical contrast shading for mobile screens.
 - **Interactive Case Study Drawer**: In-depth device previews, challenges, UX solutions, and usability metrics.
 - **Retro-Futuristic VU Meter Preloader**: Audio calibration gauge (0–100%) with LED segmented meters and danger-zone thresholds.
