@@ -1,0 +1,15 @@
+{
+  "name": "shamil-ashfaf-portfolio",
+  "version": "1.0.0",
+  "description": "Modern, minimal, editorial-style personal portfolio website for UI/UX Designer Shamil Ashfaf",
+  "type": "module",
+  "scripts": {
+    "copy-assets": "node copy-assets.js",
+    "dev": "node copy-assets.js && vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
