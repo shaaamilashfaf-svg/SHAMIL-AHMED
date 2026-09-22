@@ -3,8 +3,21 @@
 Thumbs.db
 Desktop.ini
 
-# Large uncompressed raw backups (>25MB)
+# Large uncompressed raw backups
+*_original.jpg
 assets/images/*_original.jpg
+public/assets/images/*_original.jpg
+
+# Video media files (3.5GB total - exceeds GitHub 100MB file limit)
+assets/videos/
+public/assets/videos/
+
+# Scratch and test files
+test-server.ps1
+EventHex*
+screenshot-workflow.md
+stripe-integration*
+SKILL.md
 
 # Dependencies and logs
 node_modules/
@@ -16,3 +29,4 @@ yarn-error.log*
 .env
 .env.local
 *.log
+

@@ -1,724 +1,482 @@
 /**
- * ==========================================================================
- * SHAMIL ASHFAF — UI/UX DESIGNER PORTFOLIO
- * Architecture: Christoph Nagel Reference (christoph-nagel.dev)
- * Fullscreen Stage Transition Engine, VU Preloader, Drawer & Direct Hash Routing
- * ==========================================================================
+ * Shamil Ahmed T - Cinematic Portfolio
+ * Interactive Scripts & Micro-interactions
  */
 
-(() => {
-  "use strict";
+document.addEventListener('DOMContentLoaded', () => {
+  initScrollProgress();
+  initTopbar();
+  initMobileNav();
+  initIntersectionObserver();
+  initHeroParallax();
+  initScrollSpy();
+  initBackToTop();
+  initMagneticCursor();
+  initModalLightbox();
+  initVideoPreviews();
+  initProjectFilters();
+  initAboutTabs();
+  initPortraitToggle();
+});
 
-  // Case study database
-  const caseStudies = {
-    haus: {
-      kicker: "01 · Mobile App UX & Prototyping",
-      title: "Haus — Home Salon Booking App",
-      image: "/assets/images/haus.jpg",
-      overview: "Haus connects clients with verified professionals for haircare, skincare, and wellness treatments delivered directly to their doorstep, creating a serene and luxurious self-care ritual at home.",
-      challenge: "In-home personal care requires high trust. Users felt hesitation booking unfamiliar specialists and struggled with confusing multi-step scheduling in legacy apps.",
-      solution: "Designed a soothing visual language using soft terracotta, warm alabaster, and organic home-inspired rounded forms. Integrated prominent trust indicators: verified specialist badges, real client photos, and transparent pricing before checkout.",
-      tags: ["Figma", "User Research", "Wireframing", "Usability Testing", "Design Systems"],
-      metrics: [
-        { label: "Usability Completion Rate", val: "94%" },
-        { label: "Booking Flow Steps", val: "3 Steps" },
-        { label: "User Trust Score", val: "4.9 / 5" }
-      ]
-    },
-    gandaura: {
-      kicker: "02 · Luxury E-Commerce & Cultural Branding",
-      title: "Gandaura — Natural Fragrance & Authentic Oud",
-      image: "/assets/images/gandaura.jpg",
-      overview: "An immersive e-commerce experience celebrating authentic Middle Eastern oud and botanical fragrance craftsmanship, blending heritage with modern luxury digital standards.",
-      challenge: "Fragrance is entirely invisible on digital screens. Communicating complex olfactory profiles and justifying luxury price points without physical sampling was the core UX hurdle.",
-      solution: "Engineered an interactive Olfactory Pyramid (Top, Heart, and Base notes), paired with rich macro visual assets, ingredient sourcing transparency, and an intuitive 4-step purchasing journey (Home, Collections, Fragrance Details, Checkout).",
-      tags: ["Luxury E-Commerce", "Olfactory UI", "Cultural UX", "Visual Hierarchy", "Information Architecture"],
-      metrics: [
-        { label: "Sensory Engagement", val: "+45%" },
-        { label: "Purchase Flow", val: "4 Seamless Steps" },
-        { label: "Brand Resonance", val: "Premium Luxury" }
-      ]
-    },
-    rentbiz: {
-      kicker: "03 · SaaS Dashboard & Complex Systems",
-      title: "RentBiz — Smart Property Management Platform",
-      image: "/assets/images/rentbiz.jpg",
-      overview: "A clean, modern SaaS platform designed to eliminate cognitive clutter for landlords and multi-unit property managers.",
-      challenge: "Property managers juggling dozens of units were burdened by disjointed spreadsheets, missed maintenance requests, and scattered cashflow tracking.",
-      solution: "Developed a modular card layout that prioritizes mission-critical metrics: real-time occupancy rates, monthly cashflow charts, and one-click maintenance ticket approval. Soft warm palette prevents visual fatigue during all-day usage.",
-      tags: ["SaaS Dashboard", "Data Visualization", "Modular Cards", "Workflow Automation", "Design System"],
-      metrics: [
-        { label: "Admin Workflow Time", val: "-65%" },
-        { label: "Critical Insight Scan Time", val: "< 3 Sec" },
-        { label: "System Scalability", val: "100+ Units" }
-      ]
-    },
-    noviindus: {
-      kicker: "04 · Tech & App Agency Digital Experience",
-      title: "Noviindus — Futuristic Engineering & App Agency",
-      image: "/assets/images/noviindus.jpg",
-      overview: "A bold digital overhaul for a cutting-edge software and mobile engineering studio, conveying technical mastery, reliability, and enterprise credibility.",
-      challenge: "The agency's legacy web presence did not reflect their sophisticated engineering caliber or high enterprise delivery capabilities.",
-      solution: "Created an immersive dark-mode aesthetic with vibrant cyber accents, high-contrast typography, interactive service matrices, and dynamic client outcome metrics (450+ completed products, 98% happy clients).",
-      tags: ["Dark Theme UI", "Creative Direction", "High-Impact Typography", "Agency Branding", "Interactive Showcase"],
-      metrics: [
-        { label: "Delivered Projects", val: "450+" },
-        { label: "Client Satisfaction", val: "98%" },
-        { label: "Industry Experience", val: "12+ Yrs" }
-      ]
+/* ==========================================================================
+   SCROLL PROGRESS BAR
+   ========================================================================== */
+function initScrollProgress() {
+  const bar = document.getElementById('scrollProgress');
+  if (!bar) return;
+
+  const updateProgress = () => {
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (totalHeight <= 0) return;
+    const progress = (window.scrollY / totalHeight) * 100;
+    bar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+  };
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+}
+
+/* ==========================================================================
+   TOPBAR SCROLL EFFECT
+   ========================================================================== */
+function initTopbar() {
+  const topbar = document.getElementById('topbar');
+  if (!topbar) return;
+
+  const handleScroll = () => {
+    if (window.scrollY > 50) {
+      topbar.classList.add('is-scrolled');
+    } else {
+      topbar.classList.remove('is-scrolled');
     }
   };
 
-  function boot() {
-    const body = document.body;
-    const panels = Array.from(document.querySelectorAll(".panel"));
-    const navButtons = Array.from(document.querySelectorAll(".site-nav [data-target]"));
-    const menuToggle = document.querySelector(".menu-toggle");
-    const menuBackdrop = document.querySelector(".menu-backdrop");
-    const nextButtons = Array.from(document.querySelectorAll("[data-next]"));
-    const previousButton = document.querySelector("[data-previous]");
-    const progressBar = document.getElementById("progressBar");
-    const activeSectionNum = document.getElementById("activeSectionNum");
-    const sectionAnnouncer = document.getElementById("section-announcer");
-    const wipeEdge = document.querySelector(".wipe-edge");
-    const stages = [
-      document.getElementById("background-stage-a"),
-      document.getElementById("background-stage-b")
-    ];
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll();
+}
 
-    // Preloader elements
-    const preloader = document.getElementById("preloader");
-    const percentage = document.getElementById("load-percentage");
-    const vuTrack = document.getElementById("vu-track");
+/* ==========================================================================
+   MOBILE NAVIGATION DRAWER
+   ========================================================================== */
+function initMobileNav() {
+  const toggleBtn = document.getElementById('mobileToggle');
+  const drawer = document.getElementById('mobileDrawer');
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
 
-    // Drawer and Modal elements
-    const drawerBackdrop = document.getElementById("drawerBackdrop");
-    const projectDrawer = document.getElementById("projectDrawer");
-    const drawerClose = document.getElementById("drawerClose");
-    const drawerBody = document.getElementById("drawerBody");
-    const drawerKicker = document.getElementById("drawerKicker");
-    const contactModalWrap = document.getElementById("contactModalWrap");
-    const contactClose = document.getElementById("contactClose");
-    const toastMsg = document.getElementById("toastMsg");
+  if (!toggleBtn || !drawer) return;
 
-    // Scroll Cursor
-    const scrollCursor = document.querySelector(".scroll-cursor");
-    const scrollCursorLabel = document.getElementById("scroll-cursor-label");
+  const toggleMenu = () => {
+    const isOpen = drawer.classList.contains('is-open');
+    if (isOpen) {
+      drawer.classList.remove('is-open');
+      toggleBtn.classList.remove('is-active');
+      document.body.style.overflow = '';
+    } else {
+      drawer.classList.add('is-open');
+      toggleBtn.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+    }
+  };
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const hasGsap = typeof window.gsap !== "undefined";
+  toggleBtn.addEventListener('click', toggleMenu);
 
-    const state = {
-      activeIndex: 0,
-      activeStage: 0,
-      heroWord: 0,
-      transitioning: false,
-      wheelLock: false,
-      touchStartY: 0,
-      touchScrollArea: null,
-      touchStartedAtTop: false,
-      touchStartedAtBottom: false,
-      preloaderDone: false,
-      menuOpen: false,
-      drawerOpen: false,
-      modalOpen: false
-    };
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      drawer.classList.remove('is-open');
+      toggleBtn.classList.remove('is-active');
+      document.body.style.overflow = '';
+    });
+  });
+}
 
-    // Build VU segments for preloader
-    const segmentCount = 20;
-    const segments = [];
-    if (vuTrack) {
-      for (let i = 0; i < segmentCount; i++) {
-        const seg = document.createElement("span");
-        seg.className = "vu-segment";
-        if (((i + 1) / segmentCount) * 100 >= 85) seg.classList.add("is-danger");
-        vuTrack.appendChild(seg);
-        segments.push(seg);
+/* ==========================================================================
+   INTERSECTION OBSERVER FOR FADE-IN REVEALS & CASCADING STAGGER
+   ========================================================================== */
+function initIntersectionObserver() {
+  const elements = document.querySelectorAll('.animate-on-scroll, .animate-zoom, .animate-slide-left, .animate-slide-right');
+  if (!elements.length) return;
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        // Clear inline transition-delay after reveal so hover transitions are instant
+        setTimeout(() => {
+          entry.target.style.transitionDelay = '';
+        }, 1200);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.08,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  elements.forEach((el) => {
+    const parent = el.parentElement;
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(child =>
+        child.matches('.animate-on-scroll, .animate-zoom, .animate-slide-left, .animate-slide-right')
+      );
+      const indexInParent = siblings.indexOf(el);
+      if (indexInParent > 0) {
+        const delay = Math.min((indexInParent % 6) * 0.09, 0.45);
+        el.style.transitionDelay = `${delay}s`;
       }
     }
+    observer.observe(el);
+  });
+}
 
-    // ------------------------------------------------------------------------
-    // Mobile Menu Controls
-    // ------------------------------------------------------------------------
-    function setMenu(open) {
-      state.menuOpen = open;
-      body.classList.toggle("menu-open", open);
-      menuToggle?.setAttribute("aria-expanded", String(open));
-    }
+/* ==========================================================================
+   HERO 3D PARALLAX SCROLL EFFECT
+   ========================================================================== */
+function initHeroParallax() {
+  const heroImg = document.querySelector('.hero-backdrop img');
+  const heroContent = document.querySelector('.hero-content');
+  if (!heroImg && !heroContent) return;
 
-    const mobileNavClose = document.getElementById("mobileNavClose");
-    menuToggle?.addEventListener("click", () => setMenu(!state.menuOpen));
-    menuBackdrop?.addEventListener("click", () => setMenu(false));
-    mobileNavClose?.addEventListener("click", () => setMenu(false));
+  let ticking = false;
 
-    // ------------------------------------------------------------------------
-    // Dynamic Preloader Engine
-    // ------------------------------------------------------------------------
-    function setLoadProgress(val) {
-      const clamped = Math.max(0, Math.min(100, val));
-      const activeCount = Math.round((clamped / 100) * segmentCount);
-      if (percentage) {
-        percentage.textContent = `${Math.round(clamped)}%`;
-        percentage.style.color = clamped >= 85 ? "var(--red)" : "#fff";
-      }
-      segments.forEach((seg, idx) => {
-        seg.classList.toggle("is-active", idx < activeCount);
-      });
-    }
-
-    function finishPreloader() {
-      state.preloaderDone = true;
-      body.classList.remove("is-loading");
-
-      if (hasGsap && !reducedMotion) {
-        window.gsap.timeline({
-          onComplete: () => {
-            if (preloader) preloader.style.display = "none";
-            revealPanelCopy(panels[state.activeIndex]);
+  const onScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        if (scrollY < window.innerHeight * 1.2) {
+          if (heroImg) {
+            heroImg.style.transform = `translate3d(0, ${scrollY * 0.28}px, 0)`;
           }
-        })
-          .to(".preloader-glass", { scale: 0.94, opacity: 0, y: -20, duration: 0.45, ease: "power3.in" })
-          .to(preloader, { clipPath: "inset(50% 0% 50% 0%)", duration: 0.6, ease: "expo.inOut" }, "-=0.1")
-          .to(stages[0], { filter: "grayscale(0.2) contrast(1.06) brightness(0.65) blur(0px)", scale: 1.02, duration: 0.9, ease: "power3.out" }, "-=0.4");
-      } else {
-        if (preloader) {
-          preloader.style.opacity = "0";
-          setTimeout(() => {
-            preloader.style.display = "none";
-            revealPanelCopy(panels[state.activeIndex]);
-          }, 350);
-        }
-      }
-    }
-
-    function runPreloader() {
-      let progress = 0;
-      let startTime = performance.now();
-
-      function tick(now) {
-        const elapsed = now - startTime;
-        const target = 100;
-        const speed = elapsed > 600 ? 0.08 : 0.045;
-        progress += (target - progress) * speed;
-
-        setLoadProgress(progress);
-
-        if (progress >= 98.8 || elapsed > 2400) {
-          setLoadProgress(100);
-          setTimeout(finishPreloader, reducedMotion ? 50 : 160);
-          return;
-        }
-        requestAnimationFrame(tick);
-      }
-
-      requestAnimationFrame(tick);
-    }
-
-    // ------------------------------------------------------------------------
-    // Navigation & State Management
-    // ------------------------------------------------------------------------
-    function updateNavigation() {
-      const activePanel = panels[state.activeIndex];
-      const id = activePanel.id;
-      body.dataset.section = id;
-
-      navButtons.forEach((btn) => {
-        const isActive = btn.dataset.target === id;
-        btn.classList.toggle("is-active", isActive);
-        btn.setAttribute("aria-current", isActive ? "page" : "false");
-      });
-
-      if (progressBar) {
-        const ratio = state.activeIndex / (panels.length - 1);
-        progressBar.style.transform = `scaleX(${ratio})`;
-      }
-
-      if (activeSectionNum) {
-        activeSectionNum.textContent = String(state.activeIndex + 1).padStart(2, "0");
-      }
-
-      if (previousButton) {
-        previousButton.disabled = state.activeIndex === 0 && state.heroWord === 0;
-      }
-      nextButtons.forEach((btn) => {
-        btn.disabled = state.activeIndex === panels.length - 1;
-      });
-
-      if (sectionAnnouncer) {
-        sectionAnnouncer.textContent = id;
-      }
-
-      if (scrollCursorLabel) {
-        scrollCursorLabel.textContent = state.activeIndex === panels.length - 1 ? "Top" : "Scroll";
-      }
-    }
-
-    function updateHash(id, push = false) {
-      const hash = id === "intro" ? "#intro" : `#${id}`;
-      if (window.location.hash === hash) return;
-      const method = push ? "pushState" : "replaceState";
-      history[method](null, "", hash);
-    }
-
-    // ------------------------------------------------------------------------
-    // Hero Rotating Word Engine
-    // ------------------------------------------------------------------------
-    function setHeroWord(nextIdx, direction = 1) {
-      const words = Array.from(document.querySelectorAll(".hero-word"));
-      const bounded = Math.max(0, Math.min(words.length - 1, nextIdx));
-      if (bounded === state.heroWord || state.transitioning) return false;
-
-      state.transitioning = true;
-      const current = words[state.heroWord];
-      const next = words[bounded];
-      const incomingY = direction > 0 ? 118 : -118;
-      const outgoingY = direction > 0 ? -118 : 118;
-
-      next.classList.add("is-current");
-
-      if (hasGsap && !reducedMotion) {
-        window.gsap.set(next, { yPercent: incomingY, opacity: 1 });
-        window.gsap.timeline({
-          onComplete: () => {
-            current.classList.remove("is-current");
-            state.heroWord = bounded;
-            state.transitioning = false;
-            updateNavigation();
+          if (heroContent) {
+            const opacity = Math.max(0, 1 - (scrollY / (window.innerHeight * 0.85)));
+            heroContent.style.opacity = opacity.toFixed(2);
+            heroContent.style.transform = `translate3d(0, ${scrollY * 0.14}px, 0)`;
           }
-        })
-          .to(current, { yPercent: outgoingY, opacity: 0, duration: 0.65, ease: "power4.inOut" }, 0)
-          .to(next, { yPercent: 0, opacity: 1, duration: 0.72, ease: "power4.inOut" }, 0.04);
-      } else {
-        current.classList.remove("is-current");
-        next.classList.add("is-current");
-        state.heroWord = bounded;
-        state.transitioning = false;
-        updateNavigation();
-      }
-      return true;
+        }
+        ticking = false;
+      });
+      ticking = true;
     }
+  };
 
-    // Auto-cycle hero words periodically if user stays on intro
-    let heroCycleTimer = setInterval(() => {
-      if (state.activeIndex === 0 && !state.transitioning && state.preloaderDone) {
-        const nextWord = (state.heroWord + 1) % 3;
-        setHeroWord(nextWord, 1);
-      }
-    }, 4200);
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
 
-    // ------------------------------------------------------------------------
-    // Dual-Buffer Stage Background Transition Engine
-    // ------------------------------------------------------------------------
-    function prepareNextStage(panel, direction) {
-      const nextStageIdx = state.activeStage === 0 ? 1 : 0;
-      const nextStage = stages[nextStageIdx];
-      const bgUrl = panel.dataset.bg || "/assets/images/intro.jpg";
+/* ==========================================================================
+   SCROLLSPY ACTIVE NAVIGATION LINKS
+   ========================================================================== */
+function initScrollSpy() {
+  const sections = document.querySelectorAll('section[id], footer[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  if (!sections.length || !navLinks.length) return;
 
-      nextStage.style.backgroundImage = `url('${bgUrl}')`;
-      nextStage.style.opacity = "1";
-      nextStage.style.zIndex = "2";
-      nextStage.style.clipPath = direction > 0 ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)";
+  const onScroll = () => {
+    const scrollPos = window.scrollY + 220;
 
-      return { nextStage, nextStageIdx };
-    }
+    sections.forEach(section => {
+      const top = section.offsetTop;
+      const height = section.offsetHeight;
+      const id = section.getAttribute('id');
 
-    function revealPanelCopy(panel) {
-      const items = Array.from(panel.querySelectorAll(".panel-copy > *"));
-      if (hasGsap && !reducedMotion) {
-        window.gsap.fromTo(items, 
-          { opacity: 0, y: 32 }, 
-          { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, ease: "power3.out" }
-        );
-      } else {
-        items.forEach(el => {
-          el.style.opacity = "1";
-          el.style.transform = "translateY(0)";
+      if (scrollPos >= top && scrollPos < top + height) {
+        navLinks.forEach(link => {
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.add('is-active');
+          } else {
+            link.classList.remove('is-active');
+          }
         });
       }
-    }
-
-    function switchPanel(nextIndex, options = {}) {
-      if (nextIndex < 0 || nextIndex >= panels.length || nextIndex === state.activeIndex || state.transitioning) return;
-      state.transitioning = true;
-
-      const currentIndex = state.activeIndex;
-      const direction = nextIndex > currentIndex ? 1 : -1;
-      const currentPanel = panels[currentIndex];
-      const nextPanel = panels[nextIndex];
-      const currentStage = stages[state.activeStage];
-      const { nextStage, nextStageIdx } = prepareNextStage(nextPanel, direction);
-      const currentItems = Array.from(currentPanel.querySelectorAll(".panel-copy > *"));
-      const nextItems = Array.from(nextPanel.querySelectorAll(".panel-copy > *"));
-
-      nextPanel.classList.add("is-active");
-      nextPanel.setAttribute("aria-hidden", "false");
-
-      // Update nav immediately
-      navButtons.forEach((btn) => {
-        btn.classList.toggle("is-active", btn.dataset.target === nextPanel.id);
-      });
-
-      const onTransitionComplete = () => {
-        currentPanel.classList.remove("is-active");
-        currentPanel.setAttribute("aria-hidden", "true");
-        currentStage.classList.remove("is-active");
-        currentStage.style.opacity = "0";
-        currentStage.style.zIndex = "0";
-        nextStage.classList.add("is-active");
-        nextStage.style.zIndex = "1";
-        nextStage.style.clipPath = "none";
-        state.activeStage = nextStageIdx;
-        state.activeIndex = nextIndex;
-        state.transitioning = false;
-        updateNavigation();
-        updateHash(nextPanel.id, options.pushHash === true);
-      };
-
-      if (hasGsap && !reducedMotion) {
-        const edgeStart = direction > 0 ? "0%" : "100%";
-        const edgeEnd = direction > 0 ? "100%" : "0%";
-        if (wipeEdge) window.gsap.set(wipeEdge, { left: edgeStart, opacity: 0 });
-
-        window.gsap.timeline({ onComplete: onTransitionComplete })
-          .to(currentItems, {
-            y: direction > 0 ? -20 : 20,
-            opacity: 0,
-            duration: 0.32,
-            stagger: 0.02,
-            ease: "power2.in"
-          }, 0)
-          .to(wipeEdge, { opacity: 0.8, duration: 0.12 }, 0.1)
-          .to(wipeEdge, { left: edgeEnd, duration: 0.95, ease: "expo.inOut" }, 0.1)
-          .to(nextStage, {
-            clipPath: "inset(0% 0% 0% 0%)",
-            duration: 0.95,
-            ease: "expo.inOut"
-          }, 0.1)
-          .to(wipeEdge, { opacity: 0, duration: 0.15 }, 0.95)
-          .fromTo(nextItems, 
-            { y: direction > 0 ? 36 : -36, opacity: 0 }, 
-            { y: 0, opacity: 1, duration: 0.7, stagger: 0.06, ease: "power3.out" }, 
-            0.62
-          );
-      } else {
-        // Fallback without GSAP
-        currentPanel.classList.remove("is-active");
-        nextStage.style.clipPath = "none";
-        onTransitionComplete();
-        revealPanelCopy(nextPanel);
-      }
-    }
-
-    function step(direction, pushHash = false) {
-      if (!state.preloaderDone || state.transitioning || state.drawerOpen || state.modalOpen) return;
-
-      if (state.activeIndex === 0) {
-        if (direction > 0 && state.heroWord < 2) {
-          setHeroWord(state.heroWord + 1, 1);
-          return;
-        }
-        if (direction < 0 && state.heroWord > 0) {
-          setHeroWord(state.heroWord - 1, -1);
-          return;
-        }
-      }
-      switchPanel(state.activeIndex + direction, { pushHash });
-    }
-
-    function navigateToId(id, pushHash = true) {
-      const nextIdx = panels.findIndex((p) => p.id === id);
-      if (nextIdx === -1) return;
-      if (nextIdx === 0 && state.activeIndex === 0) {
-        if (state.heroWord !== 0) setHeroWord(0, -1);
-        updateHash("intro", pushHash);
-        return;
-      }
-      switchPanel(nextIdx, { pushHash });
-    }
-
-    // ------------------------------------------------------------------------
-    // User Input Listeners
-    // ------------------------------------------------------------------------
-    // Nav Buttons
-    navButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        setMenu(false);
-        navigateToId(btn.dataset.target, true);
-      });
     });
+  };
 
-    // Monogram Home Link
-    document.querySelector(".home-mark")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      setMenu(false);
-      navigateToId("intro", true);
-    });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
 
-    // Prev / Next Arrows
-    nextButtons.forEach((btn) => btn.addEventListener("click", () => step(1, true)));
-    previousButton?.addEventListener("click", () => step(-1, true));
+/* ==========================================================================
+   BACK TO TOP FLOATING BUTTON
+   ========================================================================== */
+function initBackToTop() {
+  const btn = document.getElementById('backToTopBtn');
+  if (!btn) return;
 
-    // Panel direct target buttons (e.g. intro pills)
-    document.querySelectorAll("[data-target]").forEach((btn) => {
-      if (!btn.closest(".site-nav") && !btn.classList.contains("home-mark")) {
-        btn.addEventListener("click", () => navigateToId(btn.dataset.target, true));
-      }
-    });
-
-    // Mouse Wheel Listener with Content Panel Scroll Detection
-    window.addEventListener("wheel", (event) => {
-      if (state.menuOpen || state.drawerOpen || state.modalOpen || !state.preloaderDone || state.wheelLock || Math.abs(event.deltaY) < 18) return;
-
-      const scrollArea = event.target.closest(".content-panel");
-      if (scrollArea && scrollArea.scrollHeight > scrollArea.clientHeight) {
-        const atTop = scrollArea.scrollTop <= 0;
-        const atBottom = Math.ceil(scrollArea.scrollTop + scrollArea.clientHeight) >= scrollArea.scrollHeight;
-        if ((event.deltaY < 0 && !atTop) || (event.deltaY > 0 && !atBottom)) return;
-      }
-
-      event.preventDefault();
-      state.wheelLock = true;
-      step(event.deltaY > 0 ? 1 : -1, true);
-      setTimeout(() => { state.wheelLock = false; }, reducedMotion ? 80 : 700);
-    }, { passive: false });
-
-    // Touch Swipe Listeners
-    window.addEventListener("touchstart", (e) => {
-      state.touchStartY = e.changedTouches[0].clientY;
-      const target = e.target instanceof Element ? e.target.closest(".content-panel") : null;
-      const isScrollable = target && target.scrollHeight > target.clientHeight + 2;
-      state.touchScrollArea = isScrollable ? target : null;
-
-      if (state.touchScrollArea) {
-        state.touchStartedAtTop = state.touchScrollArea.scrollTop <= 1;
-        state.touchStartedAtBottom = Math.ceil(state.touchScrollArea.scrollTop + state.touchScrollArea.clientHeight) >= state.touchScrollArea.scrollHeight - 1;
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchend", (e) => {
-      if (state.menuOpen || state.drawerOpen || state.modalOpen || !state.preloaderDone) return;
-      const delta = state.touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(delta) <= 50) return;
-
-      const direction = delta > 0 ? 1 : -1;
-      if (state.touchScrollArea) {
-        const edgeReached = direction > 0 ? state.touchStartedAtBottom : state.touchStartedAtTop;
-        if (!edgeReached) return;
-      }
-
-      step(direction, true);
-    }, { passive: true });
-
-    // Keyboard Arrow Listeners
-    window.addEventListener("keydown", (e) => {
-      if (state.drawerOpen) {
-        if (e.key === "Escape") closeDrawer();
-        return;
-      }
-      if (state.modalOpen) {
-        if (e.key === "Escape") closeModal();
-        return;
-      }
-      if (state.menuOpen) {
-        if (e.key === "Escape") setMenu(false);
-        return;
-      }
-
-      if (["ArrowDown", "PageDown", " "].includes(e.key)) {
-        e.preventDefault();
-        step(1, true);
-      } else if (["ArrowUp", "PageUp"].includes(e.key)) {
-        e.preventDefault();
-        step(-1, true);
-      } else if (e.key === "Home") {
-        e.preventDefault();
-        navigateToId("intro", true);
-      }
-    });
-
-    // Browser Popstate (Back / Forward button support)
-    window.addEventListener("popstate", () => {
-      const id = window.location.hash.replace("#", "") || "intro";
-      navigateToId(id, false);
-    });
-
-    // ------------------------------------------------------------------------
-    // Mouse Cursor Tracking
-    // ------------------------------------------------------------------------
-    const cursorPosition = { currentX: -120, currentY: -120, targetX: -120, targetY: -120 };
-    function renderCursor() {
-      if (!scrollCursor) return;
-      cursorPosition.currentX += (cursorPosition.targetX - cursorPosition.currentX) * 0.22;
-      cursorPosition.currentY += (cursorPosition.targetY - cursorPosition.currentY) * 0.22;
-      scrollCursor.style.setProperty("--cursor-x", `${cursorPosition.currentX}px`);
-      scrollCursor.style.setProperty("--cursor-y", `${cursorPosition.currentY}px`);
-      requestAnimationFrame(renderCursor);
+  const onScroll = () => {
+    if (window.scrollY > 400) {
+      btn.classList.add('is-active');
+    } else {
+      btn.classList.remove('is-active');
     }
+  };
 
-    window.addEventListener("pointermove", (e) => {
-      cursorPosition.targetX = e.clientX;
-      cursorPosition.targetY = e.clientY;
-      body.classList.add("cursor-ready");
-    }, { passive: true });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
-    const interactiveSel = 'a, button, [role="button"], input, select, textarea';
-    document.addEventListener("pointerover", (e) => {
-      body.classList.toggle("cursor-link", Boolean(e.target.closest(interactiveSel)));
-    }, { passive: true });
-    document.addEventListener("pointerout", (e) => {
-      body.classList.toggle("cursor-link", Boolean(e.relatedTarget && e.relatedTarget.closest(interactiveSel)));
-    }, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
 
+/* ==========================================================================
+   MAGNETIC "VIEW PROJECT" CIRCULAR CURSOR (CAROUSEL TRACK)
+   ========================================================================== */
+function initMagneticCursor() {
+  const cursor = document.getElementById('customCursor');
+  const carousel = document.getElementById('personalWorksTrack');
+
+  if (!cursor || !carousel) return;
+
+  // Track mouse position over the document
+  let mouseX = -100;
+  let mouseY = -100;
+  let cursorX = -100;
+  let cursorY = -100;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }, { passive: true });
+
+  // Smooth lerp loop
+  function renderCursor() {
+    cursorX += (mouseX - cursorX) * 0.2;
+    cursorY += (mouseY - cursorY) * 0.2;
+    cursor.style.left = `${cursorX}px`;
+    cursor.style.top = `${cursorY}px`;
     requestAnimationFrame(renderCursor);
+  }
+  requestAnimationFrame(renderCursor);
 
-    // ------------------------------------------------------------------------
-    // Case Study Slide-Out Drawer
-    // ------------------------------------------------------------------------
-    function openCaseStudy(projectId) {
-      const data = caseStudies[projectId];
-      if (!data || !projectDrawer || !drawerBody) return;
+  // Activate cursor inside the carousel area
+  carousel.addEventListener('mouseenter', () => {
+    cursor.classList.add('is-active');
+  });
 
-      state.drawerOpen = true;
-      drawerKicker.textContent = data.kicker;
+  carousel.addEventListener('mouseleave', () => {
+    cursor.classList.remove('is-active');
+  });
+}
 
-      drawerBody.innerHTML = `
-        <div class="drawer-image-wrap">
-          <img src="${data.image}" alt="${data.title}" />
-        </div>
-        <h3>${data.title}</h3>
-        <p class="drawer-overview">${data.overview}</p>
+/* ==========================================================================
+   MODAL LIGHTBOX (VIDEOS & FRAMES)
+   ========================================================================== */
+function initModalLightbox() {
+  const modal = document.getElementById('modalLightbox');
+  const modalClose = document.getElementById('modalClose');
+  const modalMediaWrap = document.getElementById('modalMediaWrap');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalCategory = document.getElementById('modalCategory');
+  const modalDesc = document.getElementById('modalDesc');
 
-        <div class="drawer-section-title">The Challenge</div>
-        <p class="drawer-details-text">${data.challenge}</p>
+  if (!modal || !modalClose) return;
 
-        <div class="drawer-section-title">The UX & Design Solution</div>
-        <p class="drawer-details-text">${data.solution}</p>
+  const openModal = (data) => {
+    modalTitle.textContent = data.title || '';
+    modalCategory.textContent = data.category || '';
+    modalDesc.textContent = data.desc || '';
 
-        <div class="drawer-section-title">Key Outcome & Metrics</div>
-        <div class="skills-matrix" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
-          ${data.metrics.map(m => `
-            <div class="matrix-card">
-              <h4>${m.val}</h4>
-              <p>${m.label}</p>
-            </div>
-          `).join("")}
-        </div>
+    // Clear previous media
+    modalMediaWrap.innerHTML = '';
 
-        <div class="drawer-section-title">Tools & Competencies</div>
-        <div class="drawer-pill-grid">
-          ${data.tags.map(t => `<span class="tag-pill">${t}</span>`).join("")}
-        </div>
+    if (data.type === 'video' && data.videoSrc) {
+      const video = document.createElement('video');
+      video.src = data.videoSrc;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.width = '100%';
+      video.style.maxHeight = '70vh';
+      video.style.borderRadius = '8px';
+      video.style.backgroundColor = '#000';
+      modalMediaWrap.appendChild(video);
 
-        <div style="margin-top: 2rem;">
-          <button type="button" class="btn-pill btn-pill--primary" data-contact-open style="width: 100%; justify-content: center;">
-            Discuss This Project ↗
-          </button>
-        </div>
-      `;
-
-      drawerBackdrop?.classList.add("is-open");
-      projectDrawer.classList.add("is-open");
-      projectDrawer.setAttribute("aria-hidden", "false");
-
-      // Rebind contact buttons inside drawer
-      drawerBody.querySelectorAll("[data-contact-open]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          closeDrawer();
-          openModal();
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn('Autoplay unmuted blocked by browser policy, fallback to muted autoplay:', err);
+          video.muted = true;
+          video.play().catch(() => {});
         });
-      });
-    }
-
-    function closeDrawer() {
-      state.drawerOpen = false;
-      drawerBackdrop?.classList.remove("is-open");
-      projectDrawer?.classList.remove("is-open");
-      projectDrawer?.setAttribute("aria-hidden", "true");
-    }
-
-    document.querySelectorAll("[data-open-project]").forEach((btn) => {
-      btn.addEventListener("click", () => openCaseStudy(btn.dataset.openProject));
-    });
-
-    drawerClose?.addEventListener("click", closeDrawer);
-    drawerBackdrop?.addEventListener("click", closeDrawer);
-
-    // ------------------------------------------------------------------------
-    // Contact Modal & Clipboard Copy
-    // ------------------------------------------------------------------------
-    function openModal() {
-      state.modalOpen = true;
-      contactModalWrap?.classList.add("is-open");
-      contactModalWrap?.setAttribute("aria-hidden", "false");
-    }
-
-    function closeModal() {
-      state.modalOpen = false;
-      contactModalWrap?.classList.remove("is-open");
-      contactModalWrap?.setAttribute("aria-hidden", "true");
-    }
-
-    document.querySelectorAll("[data-contact-open]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        setMenu(false);
-        openModal();
-      });
-    });
-
-    contactClose?.addEventListener("click", closeModal);
-    contactModalWrap?.addEventListener("click", (e) => {
-      if (e.target === contactModalWrap) closeModal();
-    });
-
-    // Copy to clipboard
-    document.querySelectorAll("[data-copy]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const text = btn.dataset.copy;
-        navigator.clipboard.writeText(text).then(() => {
-          btn.textContent = "Copied!";
-          showToast(`Copied ${text} to clipboard!`);
-          setTimeout(() => { btn.textContent = "Copy"; }, 2000);
-        }).catch(() => {
-          showToast(`Direct email: ${text}`);
-        });
-      });
-    });
-
-    function showToast(msg) {
-      if (!toastMsg) return;
-      toastMsg.textContent = msg;
-      toastMsg.classList.add("show");
-      setTimeout(() => toastMsg.classList.remove("show"), 2800);
-    }
-
-    // ------------------------------------------------------------------------
-    // Direct Hash Initialization (e.g. christoph-nagel.dev/#mensch)
-    // ------------------------------------------------------------------------
-    const initialHash = window.location.hash.replace("#", "");
-    if (initialHash && initialHash !== "intro") {
-      const targetIdx = panels.findIndex((p) => p.id === initialHash);
-      if (targetIdx > 0) {
-        state.activeIndex = targetIdx;
-        panels.forEach((p, idx) => {
-          p.classList.toggle("is-active", idx === targetIdx);
-          p.setAttribute("aria-hidden", idx === targetIdx ? "false" : "true");
-        });
-        const target = panels[targetIdx];
-        const targetBg = target.dataset.bg || "/assets/images/intro.jpg";
-        stages[0].style.backgroundImage = `url('${targetBg}')`;
-        body.dataset.section = target.id;
       }
+    } else {
+      const img = document.createElement('img');
+      img.src = data.imgSrc || '';
+      img.alt = data.title || '';
+      img.className = 'w-full max-h-[70vh] object-contain';
+      modalMediaWrap.appendChild(img);
     }
 
-    updateNavigation();
-    runPreloader();
-  }
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  };
 
-  // Boot on DOM ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-})();
+  const closeModal = () => {
+    modal.classList.remove('is-open');
+    document.body.style.overflow = '';
+    // Pause any playing video inside modal
+    const video = modalMediaWrap.querySelector('video');
+    if (video) {
+      video.pause();
+    }
+    setTimeout(() => {
+      modalMediaWrap.innerHTML = '';
+    }, 300);
+  };
+
+  modalClose.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+      closeModal();
+    }
+  });
+
+  // Attach click events to all modal trigger elements
+  const triggers = document.querySelectorAll('[data-modal-trigger]');
+  triggers.forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const data = {
+        title: trigger.getAttribute('data-title') || '',
+        category: trigger.getAttribute('data-category') || '',
+        desc: trigger.getAttribute('data-desc') || '',
+        imgSrc: trigger.getAttribute('data-img') || '',
+        videoSrc: trigger.getAttribute('data-video') || '',
+        type: trigger.getAttribute('data-type') || 'image'
+      };
+      openModal(data);
+    });
+  });
+}
+
+/* ==========================================================================
+   ABOUT ME AUDIENCE TABS SWITCHER
+   ========================================================================== */
+function initAboutTabs() {
+  const tabs = document.querySelectorAll('.about-tab-btn');
+  const narrative = document.getElementById('aboutNarrative');
+
+  if (!tabs.length || !narrative) return;
+
+  const narratives = {
+    anyone: `I am a videographer, editor, and director based in Vazhakkad, Kerala. I bring creative ideas to life through cinematic storytelling, dynamic edits, and thoughtful direction. Having collaborated on television broadcasts, documentaries, and commercial ad films, I move effortlessly between technical camera operations and creative visual vision.`,
+    productions: `For production houses and broadcast studios, I bring hands-on experience from Jaihind TV Trivandrum. I understand the pace, precision, and technical rigor required for television programs and creative multi-cam shoots. Dependable under tight schedules and always focused on broadcast-quality delivery.`,
+    directors: `For directors, I serve as a trusted creative and technical right hand. I handle camera framing, lighting depth, and rhythm on set, ensuring every frame matches your vision. In post-production, I cut with rhythmic pace and nuanced color grading in Adobe Premiere Pro and After Effects.`,
+    brands: `For brands and businesses, I deliver end-to-end visual content that grabs attention and builds prestige. From concept development, directing, and drone cinematography to post-production and social media management (as proven with Paddle Up Kayaking), I craft films that drive real engagement.`
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+
+      const key = tab.getAttribute('data-tab');
+      if (narratives[key]) {
+        narrative.style.opacity = '0';
+        narrative.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+          narrative.textContent = narratives[key];
+          narrative.style.opacity = '1';
+          narrative.style.transform = 'translateY(0)';
+        }, 200);
+      }
+    });
+  });
+}
+
+/* ==========================================================================
+   PORTRAIT CLICK TO TOGGLE GRAYSCALE/COLOR
+   ========================================================================== */
+function initPortraitToggle() {
+  const wrap = document.getElementById('aboutPortraitWrap');
+  if (!wrap) return;
+
+  wrap.addEventListener('click', () => {
+    wrap.classList.toggle('is-grayscale');
+  });
+}
+
+/* ==========================================================================
+   VIDEO CARD VIEWPORT AUTO-PLAY & HOVER PREVIEW
+   ========================================================================== */
+function initVideoPreviews() {
+  const cards = document.querySelectorAll('.project-card');
+  if (!cards.length) return;
+
+  // Viewport-based IntersectionObserver to auto-run preview videos when visible
+  const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target.querySelector('video.project-card-media');
+      if (!video) return;
+
+      if (entry.isIntersecting) {
+        video.muted = true;
+        video.playsInline = true;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Autoplay will proceed on user scroll / interaction
+          });
+        }
+      } else {
+        video.pause();
+      }
+    });
+  }, {
+    threshold: 0.2
+  });
+
+  cards.forEach(card => {
+    const video = card.querySelector('video.project-card-media');
+    if (!video) return;
+
+    video.muted = true;
+    video.playsInline = true;
+    videoObserver.observe(card);
+
+    card.addEventListener('mouseenter', () => {
+      video.muted = true;
+      video.play().catch(() => {});
+    });
+  });
+}
+
+/* ==========================================================================
+   PROJECT CATEGORY FILTERS
+   ========================================================================== */
+function initProjectFilters() {
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.project-card');
+  if (!filterBtns.length || !cards.length) return;
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+
+      const filter = btn.getAttribute('data-filter');
+
+      cards.forEach(card => {
+        const group = card.getAttribute('data-group');
+        if (filter === 'all' || group === filter) {
+          card.style.display = '';
+          setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0) scale(1)';
+          }, 10);
+        } else {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(10px) scale(0.98)';
+          setTimeout(() => {
+            card.style.display = 'none';
+          }, 250);
+        }
+      });
+    });
+  });
+}
+
