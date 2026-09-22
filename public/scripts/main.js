@@ -401,85 +401,48 @@ function initPortraitToggle() {
 }
 
 /* ==========================================================================
-   VIDEO CARD LAZY LOADING & VIEWPORT PLAYBACK
+   VIDEO CARD VIEWPORT AUTO-PLAY & HOVER PREVIEW
    ========================================================================== */
 function initVideoPreviews() {
   const cards = document.querySelectorAll('.project-card');
   if (!cards.length) return;
 
-  const loadVideoSrc = (video) => {
-    if (!video) return;
-    if (!video.getAttribute('src') && video.dataset.src) {
-      video.setAttribute('src', video.dataset.src);
-      video.load();
-    }
-  };
-
-  if ('IntersectionObserver' in window) {
-    // 1. Proximity observer: lazily loads video source when within 250px of viewport
-    const lazyObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const video = entry.target.querySelector('video.project-card-media');
-          if (video) {
-            loadVideoSrc(video);
-            observer.unobserve(entry.target);
-          }
-        }
-      });
-    }, {
-      rootMargin: '250px 0px 250px 0px'
-    });
-
-    // 2. Playback observer: plays video when visible, pauses when out of view
-    const playbackObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const video = entry.target.querySelector('video.project-card-media');
-        if (!video) return;
-
-        if (entry.isIntersecting) {
-          loadVideoSrc(video);
-          video.muted = true;
-          video.playsInline = true;
-          const playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              // Autoplay will proceed on user scroll / interaction
-            });
-          }
-        } else {
-          if (!video.paused) {
-            video.pause();
-          }
-        }
-      });
-    }, {
-      threshold: 0.15
-    });
-
-    cards.forEach(card => {
-      const video = card.querySelector('video.project-card-media');
+  // Viewport-based IntersectionObserver to auto-run preview videos when visible
+  const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target.querySelector('video.project-card-media');
       if (!video) return;
 
-      video.muted = true;
-      video.playsInline = true;
-      lazyObserver.observe(card);
-      playbackObserver.observe(card);
-
-      // On mouse hover, ensure loaded and start playback immediately
-      card.addEventListener('mouseenter', () => {
-        loadVideoSrc(video);
+      if (entry.isIntersecting) {
         video.muted = true;
-        video.play().catch(() => {});
-      });
+        video.playsInline = true;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Autoplay will proceed on user scroll / interaction
+          });
+        }
+      } else {
+        video.pause();
+      }
     });
-  } else {
-    // Fallback if IntersectionObserver is not supported
-    cards.forEach(card => {
-      const video = card.querySelector('video.project-card-media');
-      if (video) loadVideoSrc(video);
+  }, {
+    threshold: 0.2
+  });
+
+  cards.forEach(card => {
+    const video = card.querySelector('video.project-card-media');
+    if (!video) return;
+
+    video.muted = true;
+    video.playsInline = true;
+    videoObserver.observe(card);
+
+    card.addEventListener('mouseenter', () => {
+      video.muted = true;
+      video.play().catch(() => {});
     });
-  }
+  });
 }
 
 /* ==========================================================================

@@ -700,8 +700,7 @@ section {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background-color: var(--bg-card);
-  transition: transform var(--transition-slow), opacity 0.4s ease;
+  transition: transform var(--transition-slow);
 }
 
 .project-card:hover .project-card-media {
